@@ -1,23 +1,35 @@
 version: '3'
 
 services:
-    web:
-     image: ns/myappweb:prod
-     ports:
-        - "80:3000"
-     env_file:
-        - .env/production/database
-        - .env/production/web
+  web:
+    image: educative1/myapp_web:prod
+    ports:
+      - "80:3000"
+    env_file:
+      - .env/production/database
+      - .env/production/web
 
-    redis:
-     image: redis
+  redis:
+    image: redis
 
-    database:
-     image: postgres
-     env_file:
-        - .env/production/database
-     volumes:
-        - db_data:/var/lib/postgresql/data
+  database:
+    image: postgres
+    env_file:
+      - .env/production/database
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  db-migrator:
+    image: educative1/myapp_web:prod
+    command: ["./wait-for", "--timeout=300", "database:5432", "--",   
+              "bin/rails", "db:migrate"]  
+    env_file:
+      - .env/production/database
+      - .env/production/web
+    deploy:
+      restart_policy:    
+        condition: none
 
 volumes:
-    db_data:
+  db_data:
+
