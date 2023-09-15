@@ -1,0 +1,48 @@
+Steps to deploy
+
+    Paste the copied token in the terminal at the end of this lesson against DIGITAL_OCEAN_TOKEN and save it.
+
+    To create the manager instance click on the Run button. The following command is used to create the instance:
+
+    docker-machine create \
+        --driver digitalocean \
+        --digitalocean-access-token $DIGITAL_OCEAN_TOKEN \
+        --digitalocean-region lon1 \
+        --engine-install-url "https://releases.rancher.com/install-docker/19.03.9.sh" \
+    do-manager-1
+
+    Get the manager’s internal IP address by using the following command and replace <YOUR_INTERNAL_IP> in notepad.txt.
+
+    docker-machine ssh do-manager-1 "ifconfig eth0" | grep 'inet addr:'
+
+    With DigitalOcean, docker-machine’s SSH session is configured to connect as the root user. So, to initialize the swarm, copy the updated command in notepad.txt and run it in the terminal.
+
+    Replace the <SWARM_TOKEN> in the workers.sh by the swarm token that will be given in the output. Also, replace <YOUR_INTERNAL_IP> in workers.sh with the internal IP you found before.
+
+    Run docker-machine ls and copy the IP and port of the manager’s instance and place it in file pointToCli.bash_rc in front of:
+
+    export DOCKER_HOST=tcp://
+
+    Click the Run button.
+
+    Note: You can switch to the Terminal tab once the Output tab in the terminal below says “Output will be displayed when server responds…”.
+
+    To create two instances and connect them to the swarm, run:
+
+    chmod +x workers.sh && source ./workers.sh
+
+    To point the manager instance to CLI, run:
+
+    chmod +x pointToCli.sh && source ./pointToCli.sh
+
+    Note: You do not need to update the security group to allow swarm ports since with DigitalOcean, these ports were open by default.
+
+    Deploy the app:
+
+    docker stack deploy -c docker-stack.yml myapp
+
+    You should now be able to reach the app by visiting http://IP_AddressOfNode/welcome. You can list the node IPs by doing this:
+
+    docker-machine ls
+
+    Also visit http://IP_AddressOfNode:8080 to see the visualizer.
